@@ -6,6 +6,7 @@ import java.awt.Toolkit;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -50,7 +51,14 @@ public class MainApplicationFrame extends JFrame
         addWindow(gameWindow);
 
         setJMenuBar(generateMenuBar());
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);  //Убрано default поведение при закрытии окна
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                handleExit(e);
+            }
+        });
     }
     
     protected LogWindow createLogWindow()
@@ -70,7 +78,7 @@ public class MainApplicationFrame extends JFrame
         frame.setVisible(true);
     }
 
-    private void handleExit() {
+    private void handleExit(WindowEvent event) {
         Object[] options = {"Да", "Нет"};
 
         int result = JOptionPane.showOptionDialog(
@@ -85,7 +93,7 @@ public class MainApplicationFrame extends JFrame
         );
 
         if (result == 0) {
-            this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+            System.exit(0);
         }
     }
 
@@ -127,7 +135,7 @@ public class MainApplicationFrame extends JFrame
         JMenuItem menu = new JMenuItem("Выход");
         menu.setMnemonic(KeyEvent.VK_X);
         menu.getAccessibleContext().setAccessibleDescription("Завершить работу приложения");
-        menu.addActionListener(event -> handleExit());
+        menu.addActionListener(event -> handleExit(null));
         return menu;
     }
 
