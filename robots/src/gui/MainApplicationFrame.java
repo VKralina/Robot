@@ -135,7 +135,10 @@ public class MainApplicationFrame extends JFrame
         JMenuItem menu = new JMenuItem("Выход");
         menu.setMnemonic(KeyEvent.VK_X);
         menu.getAccessibleContext().setAccessibleDescription("Завершить работу приложения");
-        menu.addActionListener(event -> handleExit(null));
+        menu.addActionListener(event -> {
+            WindowEvent closingEvent = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+            Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closingEvent);
+        });
         return menu;
     }
 
