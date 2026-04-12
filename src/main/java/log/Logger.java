@@ -15,10 +15,17 @@ public final class Logger
     {
         defaultLogSource.append(LogLevel.Debug, strMessage);
     }
-    
-    public static void error(String strMessage)
-    {
+
+    public static void error(String strMessage) {
         defaultLogSource.append(LogLevel.Error, strMessage);
+    }
+
+    public static void info(String strMessage) {
+        defaultLogSource.append(LogLevel.Info, strMessage);
+    }
+
+    public static void error(String strMessage, Exception e) {
+        error(strMessage + " - " + e.getMessage());
     }
 
     public static LogWindowSource getDefaultLogSource()

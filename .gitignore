@@ -1,4 +1,15 @@
-/.metadata
-/robots/.settings
-/robots/bin
-eclipse.bat
+# Maven
+target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# JDK
+.DS_Store
