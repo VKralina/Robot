@@ -10,7 +10,6 @@ import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
-import java.io.IOException;
 import javax.swing.SwingUtilities;
 
 
@@ -96,15 +95,8 @@ public class MainApplicationFrame extends JFrame
     }
 
     //загрузка окн
-    private void loadWindowStates() {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                windowStateManager.loadWindowStates(desktopPane);
-            }
-            catch (IOException e) {
-                Logger.error("Ошибка загрузки состояний окон: " + e.getMessage(), e);
-            }
+    private void loadWindowStates() {SwingUtilities.invokeLater(() -> {
+        windowStateManager.loadWindowStates(desktopPane);
         });
     }
-
 }

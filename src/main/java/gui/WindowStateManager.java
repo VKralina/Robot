@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import java.beans.PropertyVetoException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import log.Logger;
 
@@ -19,10 +20,13 @@ public class WindowStateManager {
     private ObjectMapper mapper = new ObjectMapper();
 
     public WindowStateManager() {
+        //игнорируем неизвестные поля
+        mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         Path configPath = Paths.get(CONFIG_DIR);
         try {
             if (!Files.exists(configPath)) { //есть ли вообще
                 Files.createDirectories(configPath);
+                Logger.info("Создана директория конфигурации: " + CONFIG_DIR);
             }
         } catch (IOException e) {
             Logger.error("Не удалось создать директорию конфигурации: " + e.getMessage(), e);
@@ -39,7 +43,7 @@ public class WindowStateManager {
         saveToFile(); //запись в json
     }
 
-    public void loadWindowStates(JDesktopPane desktopPane) throws IOException {
+    public void loadWindowStates(JDesktopPane desktopPane) {
         loadFromFile(); //загрузка данных
         for (JInternalFrame frame : desktopPane.getAllFrames()) {
             String uniqueId = getUniqueWindowId(frame);
@@ -53,8 +57,7 @@ public class WindowStateManager {
     //формирование Id для windowStates
     private String getUniqueWindowId(JInternalFrame frame) {
         String className = frame.getClass().getSimpleName();
-        String title = frame.getTitle().replaceAll("\\s+", "_");
-        return className + "_" + title;
+        return className;
     }
 
     //сохранение в файл
@@ -67,30 +70,43 @@ public class WindowStateManager {
             String json = mapper.writeValueAsString(windowStates);
             Files.write(Paths.get(CONFIG_FILE), json.getBytes());
         } catch (IOException e) {
-            Logger.error("Ошибка сохранения: " + e.getMessage(), e);
+            Logger.error("Ошибка сохранения. Проверьте права доступа и свободное место. " + e.getMessage(), e);
+        } catch (Exception e) {
+            Logger.error("Неожиданная ошибка при сохранении: " + e.getMessage(), e);
         }
     }
 
     //выгрузка из файла
-    private void loadFromFile() throws IOException {
+    private void loadFromFile() {
         try {
             Path filePath = Paths.get(CONFIG_FILE);
             if (Files.exists(filePath)) {
                 byte[] bytes = Files.readAllBytes(filePath);
                 windowStates = mapper.readValue(bytes,
                         mapper.getTypeFactory().constructMapType(HashMap.class, String.class, WindowState.class));
+                Logger.debug("Загружен файл конфигурации: " + CONFIG_FILE);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Logger.error("Ошибка чтения файла: " + e.getMessage(), e);
+            resetDefaultStates();
+        } catch (Exception e) {
+            Logger.error("Неожиданная ошибка при загрузке состояний окон: " + e.getMessage(), e);
+            resetDefaultStates();
         }
     }
+
+    private void resetDefaultStates() {
+        windowStates.clear();
+        Logger.info("Состояния окон сброшены к настройкам по умолчанию");
+    }
+
 
     private static class WindowState {
         private int x, y, width, height;
         private boolean iconified;
 
-        public WindowState() {}
+        public WindowState() {
+        }
 
         public WindowState(JInternalFrame frame) {
             x = frame.getX();
@@ -100,28 +116,59 @@ public class WindowStateManager {
             iconified = frame.isIcon();
         }
 
-        public int getX() { return x; }
-        public void setX(int x) { this.x = x; }
+        public int getX() {
+            return x;
+        }
 
-        public int getY() { return y; }
-        public void setY(int y) { this.y = y; }
+        public void setX(int x) {
+            this.x = x;
+        }
 
-        public int getWidth() { return width; }
-        public void setWidth(int width) { this.width = width; }
+        public int getY() {
+            return y;
+        }
 
-        public int getHeight() { return height; }
-        public void setHeight(int height) { this.height = height; }
+        public void setY(int y) {
+            this.y = y;
+        }
 
-        public boolean isIconified() { return iconified; }
-        public void setIconified(boolean iconified) { this.iconified = iconified; }
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+
+        public boolean isIconified() {
+            return iconified;
+        }
+
+        public void setIconified(boolean iconified) {
+            this.iconified = iconified;
+        }
 
         public void applyTo(JInternalFrame frame) {
-            frame.setBounds(x, y, width, height);
+            //значения по умолчанию
+            int fX = (x > 0) ? x : 10;
+            int fY = (y > 0) ? y : 10;
+            int fWidth = (width > 50) ? width : 400;
+            int fHeight = (height > 50) ? height : 300;
+
             try {
-                if (iconified) {
-                    frame.setIcon(true);
+                frame.setBounds(fX, fY, fWidth, fHeight);
+                if (frame.isIconifiable()) {
+                    frame.setIcon(iconified);
                 } else {
-                    frame.setIcon(false);
+                    frame.setVisible(true);
                 }
             } catch (PropertyVetoException e) {
                 Logger.error("Не удалось установить состояние окна: " + e.getMessage(), e);
