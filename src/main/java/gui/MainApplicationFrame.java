@@ -12,7 +12,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-
+import model.RobotModel;
 import log.Logger;
 
 /**
@@ -25,8 +25,10 @@ public class MainApplicationFrame extends JFrame
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private final WindowStateManager windowStateManager = new WindowStateManager();
-    
-    public MainApplicationFrame() {
+    private final RobotModel robotModel;
+
+    public MainApplicationFrame(RobotModel robotModel) {
+        this.robotModel = robotModel;
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
         int inset = 50;        
@@ -36,14 +38,17 @@ public class MainApplicationFrame extends JFrame
             screenSize.height - inset*2);
 
         setContentPane(desktopPane);
-        
-        
+
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow();
+        GameWindow gameWindow = new GameWindow(robotModel);
         gameWindow.setSize(400,  400);
         addWindow(gameWindow);
+
+        CoordinatesWindow coordinatesWindow = new CoordinatesWindow(robotModel);
+        coordinatesWindow.setLocation(450, 10);
+        addWindow(coordinatesWindow);
 
         setJMenuBar(new MenuBarFactory(this).generateMenuBar());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);  //Убрано default поведение при закрытии окна

@@ -5,6 +5,8 @@ import java.awt.Frame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import model.RobotModel;
+
 public class RobotsProgram
 {
     public static void main(String[] args) {
@@ -17,7 +19,8 @@ public class RobotsProgram
         e.printStackTrace();
       }
       SwingUtilities.invokeLater(() -> {
-        MainApplicationFrame frame = new MainApplicationFrame();
+        RobotModel robotModel = new RobotModel();
+        MainApplicationFrame frame = new MainApplicationFrame(robotModel);
         frame.pack();
         frame.setVisible(true);
         frame.setExtendedState(Frame.MAXIMIZED_BOTH);
