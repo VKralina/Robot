@@ -6,6 +6,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import model.RobotModel;
+import model.TargetModel;
 
 public class RobotsProgram
 {
@@ -20,7 +21,8 @@ public class RobotsProgram
       }
       SwingUtilities.invokeLater(() -> {
         RobotModel robotModel = new RobotModel();
-        MainApplicationFrame frame = new MainApplicationFrame(robotModel);
+        TargetModel targetModel = new TargetModel();
+        MainApplicationFrame frame = new MainApplicationFrame(robotModel,targetModel);
         frame.pack();
         frame.setVisible(true);
         frame.setExtendedState(Frame.MAXIMIZED_BOTH);

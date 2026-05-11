@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import model.RobotModel;
+import model.TargetModel;
 import log.Logger;
 
 /**
@@ -26,9 +27,11 @@ public class MainApplicationFrame extends JFrame
     private final JDesktopPane desktopPane = new JDesktopPane();
     private final WindowStateManager windowStateManager = new WindowStateManager();
     private final RobotModel robotModel;
+    private final TargetModel targetModel;
 
-    public MainApplicationFrame(RobotModel robotModel) {
+    public MainApplicationFrame(RobotModel robotModel, TargetModel target) {
         this.robotModel = robotModel;
+        this.targetModel = target;
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
         int inset = 50;        
@@ -42,7 +45,7 @@ public class MainApplicationFrame extends JFrame
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow(robotModel);
+        GameWindow gameWindow = new GameWindow(robotModel, target);
         gameWindow.setSize(400,  400);
         addWindow(gameWindow);
 
